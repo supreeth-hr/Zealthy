@@ -183,6 +183,7 @@ app.get('/api/admin/patients/:userId/allappointments', async (req, res) => {
   const { userId } = req.params;
   try {
     const appointments = await getAllAppointmentsForPatient(userId);
+    console.log("API Response",appointments);
     res.json(appointments);
   } catch (err) {
     console.error(err);
@@ -417,7 +418,13 @@ const getAllPrescriptionsForPatient = async (userId) => {
 
 const getAllAppointmentsForPatient = async (userId) => {
   const result = await db.query(
-    `SELECT *
+    `SELECT
+       id,
+       user_id,
+       provider,
+       to_char(datetime, 'YYYY-MM-DD"T"HH24:MI:SS') AS datetime,
+       repeat,
+       to_char(created_at, 'YYYY-MM-DD"T"HH24:MI:SS.US') AS created_at
      FROM appointments
      WHERE user_id = $1
      ORDER BY created_at ASC`,
