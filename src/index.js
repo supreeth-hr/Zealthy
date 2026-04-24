@@ -128,7 +128,15 @@ app.post('/api/admin/patients/:userId/appointments', async (req, res) => {
   const { provider, datetime, repeat } = req.body;
   try {
     const result = await db.query(
-      `INSERT INTO appointments (user_id, provider, datetime, repeat) VALUES ($1, $2, $3, $4) RETURNING *`,
+      `INSERT INTO appointments (user_id, provider, datetime, repeat)
+       VALUES ($1, $2, $3, $4)
+       RETURNING
+         id,
+         user_id,
+         provider,
+         to_char(datetime, 'YYYY-MM-DD"T"HH24:MI:SS') AS datetime,
+         repeat,
+         to_char(created_at, 'YYYY-MM-DD"T"HH24:MI:SS.US') AS created_at`,
       [userId, provider, datetime, repeat || 'none']
     );
     res.status(201).json(result.rows[0]);
@@ -143,7 +151,16 @@ app.put('/api/admin/patients/:userId/appointments/:id', async (req, res) => {
   const { provider, datetime, repeat } = req.body;
   try {
     const result = await db.query(
-      `UPDATE appointments SET provider = $1, datetime = $2, repeat = $3 WHERE id = $4 AND user_id = $5 RETURNING *`,
+      `UPDATE appointments
+       SET provider = $1, datetime = $2, repeat = $3
+       WHERE id = $4 AND user_id = $5
+       RETURNING
+         id,
+         user_id,
+         provider,
+         to_char(datetime, 'YYYY-MM-DD"T"HH24:MI:SS') AS datetime,
+         repeat,
+         to_char(created_at, 'YYYY-MM-DD"T"HH24:MI:SS.US') AS created_at`,
       [provider, datetime, repeat, id, userId]
     );
     if (!result.rowCount) return res.status(404).json({ error: 'Appointment not found' });
@@ -183,7 +200,6 @@ app.get('/api/admin/patients/:userId/allappointments', async (req, res) => {
   const { userId } = req.params;
   try {
     const appointments = await getAllAppointmentsForPatient(userId);
-    console.log("API Response",appointments);
     res.json(appointments);
   } catch (err) {
     console.error(err);
