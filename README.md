@@ -162,7 +162,61 @@ Server runs on `http://localhost:3000` by default.
 - Rotate secrets if exposed.
 - Keep `JWT_SECRET` strong and random.
 
+## Testing
+
+This project uses **Jest** + **Supertest** for fast mocked API tests.
+
+Current test files:
+- `test/auth.api.test.js`
+- `test/portal.api.test.js`
+- `test/admin.api.test.js`
+
+### What is covered
+
+- Auth API (`POST /api/login`)
+  - success (`200`)
+  - invalid credentials (`401`)
+  - service error (`500`)
+
+- Portal API representative route (`GET /api/portal/prescriptions/:userId`)
+  - missing token (`401`)
+  - ownership mismatch (`403`)
+  - authorized success (`200`)
+  - server error path (`500`)
+
+- Admin API representative CRUD routes
+  - patients endpoints (list/create)
+  - appointments endpoints (create/delete)
+  - prescriptions endpoints (create)
+  - error path example (`500`)
+
+### Run tests
+
+Install dependencies (if not already installed):
+
+```bash
+npm install
+```
+
+Run all tests:
+
+```bash
+npm test
+```
+
+Watch mode:
+
+```bash
+npm run test:watch
+```
+
+### Test Environment
+
+Tests use a setup file at `test/setupEnv.js` to ensure required env values are present during test runtime (for example `JWT_SECRET`).
+
 ## Available Scripts
 
 - `npm start` - run backend
 - `npm run dev` - run with nodemon
+- `npm test` - run Jest test suite
+- `npm run test:watch` - run tests in watch mode
